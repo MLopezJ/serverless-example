@@ -1,1 +1,91 @@
 <h1>Hello world</h1>
+
+<div class="charts"></div>
+
+<template id="chart-template">
+    <div class="chart">
+        <h2></h2>
+        <div class="graphic"></div>
+    </div>
+</template>
+
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script>
+
+    const chartGenerator = (data, divId) => {
+        const width = 800;
+        const height = 800;
+        const margin = {top: 10, right: 40, bottom: 30, left: 30};
+
+        // define X 
+        const xExtent = d3.extent(data, d => new Date(d.date));
+        const xScale = d3.scaleTime()
+            .domain(xExtent)
+            .range([margin.left, width - margin.right]);
+        const xAxis = (g) => g
+            .attr('transform', `translate(0,${height - margin.bottom})`)
+            .call(d3.axisBottom(xScale));
+
+        // define Y
+        const yExtent = d3.extent(data, (d) => d.value);
+        const yScale = d3.scaleLinear()
+            .domain(yExtent).nice()
+            .range([height - margin.bottom, margin.top]);
+        const yAxis = (g) => g
+            .attr('transform', `translate(${margin.left},0)`)
+            .call(d3.axisLeft(yScale));
+        
+        // Create line
+        const chartLine = d3.line()
+            .defined(d => !isNaN(d.value))
+            .x(d => xScale(new Date(d.date)))
+            .y(d => yScale(d.value));
+
+        // Set SVG
+        const svg = d3.select(`#${divId}`)
+            .append("svg")
+            .attr("viewBox", `0 0 ${height} ${width}`)
+            .append("g")
+            //.attr("transform","translate(" + margin.left + "," + margin.top + ")");
+
+        // Draw X axis
+        svg.append('g')
+            .call(xAxis)
+            .attr('stroke-width',5)
+    
+        // Draw Y axis
+        svg.append('g')
+            .call(yAxis)
+            .attr('stroke-width',4)
+    
+        const color = "#"+((1<<24)*Math.random()|0).toString(16); // todo change the way the random color is selected
+        
+        // Draw the line.
+        svg.append('path')
+            .datum(data)
+            .attr('d', chartLine)
+            .attr('fill', 'none')
+            .attr('stroke', color)
+            .attr('stroke-width', 5)
+            .attr('stroke-linejoin', 'round')
+            .attr('stroke-linecap', 'round')
+    }
+    async function initialize(){
+        
+        const sensorsData = await fetch('/.netlify/functions/sensor')
+        .then((response) => response.json());
+
+        sensorsData.map(sensor => {
+            const container = document.querySelector('.charts');
+            const template = document.querySelector('#chart-template');
+            const element = template.content.cloneNode(true);
+            const svgDiv = element.querySelector('.graphic')
+            svgDiv.id = sensor.id;
+            element.querySelector('h2').innerText = sensor.title
+            container.appendChild(element);
+            chartGenerator(sensor.data, sensor.id)
+        })
+    }
+
+    initialize()
+</script>
