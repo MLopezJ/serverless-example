@@ -12,6 +12,11 @@
 <script src="https://d3js.org/d3.v6.min.js"></script>
 <script>
 
+    /**
+     * Generate chart
+     * @param {array} data
+     * @param {string} divId
+     */
     const chartGenerator = (data, divId) => {
 
         // define constants
@@ -103,6 +108,9 @@
             .attr('stroke-width',4);
     }
 
+    /**
+     * initialize the construction of elements that will be rendered on the page
+     */
     async function initialize(){
         
         const sensorsData = await fetch('/.netlify/functions/sensor')
