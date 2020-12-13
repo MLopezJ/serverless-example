@@ -13,72 +13,96 @@
 <script>
 
     const chartGenerator = (data, divId) => {
+
+        // define constants
         const width = 800;
         const height = 800;
         const margin = {top: 10, right: 40, bottom: 30, left: 30};
+        const colors = ["steelblue", "orange", "black", "red"]
+        const color = colors[Math.floor(Math.random() * colors.length)];
 
-        // define X 
-        const xExtent = d3.extent(data, d => new Date(d.date));
-        const xScale = d3.scaleTime()
-            .domain(xExtent)
-            .range([margin.left, width - margin.right]);
-        const xAxis = (g) => g
-            .attr('transform', `translate(0,${height - margin.bottom})`)
-            .call(d3.axisBottom(xScale));
+        // X
+        const x = d3.scaleBand()
+            .domain(data.map(d => new Date(d.date)))
+            .range([margin.left, width - margin.right])
+            .padding(0.1)
 
-        // define Y
-        const yExtent = d3.extent(data, (d) => d.value);
-        const yScale = d3.scaleLinear()
-            .domain(yExtent).nice()
-            .range([height - margin.bottom, margin.top]);
-        const yAxis = (g) => g
-            .attr('transform', `translate(${margin.left},0)`)
-            .call(d3.axisLeft(yScale));
+        const xAxis = g => g
+            .attr("transform", `translate(0,${height - margin.bottom})`)
+            .call(
+                d3.axisBottom(x)
+                .tickFormat(d3.timeFormat("%d-%b-%y"))
+                .tickSizeOuter(0)
+            )
+
+        // Y
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.value)]).nice()
+            .range([height - margin.bottom, margin.top])
         
-        // Create line
-        const chartLine = d3.line()
-            .defined(d => !isNaN(d.value))
-            .x(d => xScale(new Date(d.date)))
-            .y(d => yScale(d.value));
+        const yAxis = g => g
+            .attr("transform", `translate(${margin.left},0)`)
+            .call(d3.axisLeft(y).ticks(null, data.format))
+            .call(g => g.append("text")
+                .attr("x", -margin.left)
+                .attr("y", 10)
+                .attr("fill", "currentColor")
+                .attr("text-anchor", "start")
+                .text(data.y))
 
         // Set SVG
         const svg = d3.select(`#${divId}`)
             .append("svg")
             .attr("viewBox", `0 0 ${height} ${width}`)
-            .append("g")
-            //.attr("transform","translate(" + margin.left + "," + margin.top + ")");
-
-        // Draw X axis
-        svg.append('g')
-            .call(xAxis)
-            .attr('stroke-width',5)
-    
-        // Draw Y axis
-        svg.append('g')
-            .call(yAxis)
-            .attr('stroke-width',4)
-    
-        const color = "#"+((1<<24)*Math.random()|0).toString(16); // todo change the way the random color is selected
         
-        // Draw the line.
-        svg.append('path')
-            .datum(data)
-            .attr('d', chartLine)
-            .attr('fill', 'none')
-            .attr('stroke', color)
-            .attr('stroke-width', 5)
-            .attr('stroke-linejoin', 'round')
-            .attr('stroke-linecap', 'round')
+        // Set g
+        const g = svg.append("g")
+            .attr("fill", color);
 
-        // draw dots 
-        svg.selectAll()
+        // Set line
+        const line = d3
+            .line()
+            .defined(d => !isNaN(d.value))
+            .x(d => x(new Date(d.date)) + x.bandwidth() / 2)
+            .y(d => y(d.value))
+
+        // Append rectangles
+        g.selectAll("rect")
             .data(data)
-            .enter()
-            .append("circle")
-            .attr("cx", function(d){ return xScale(new Date(d.date)) })
-            .attr("cy", function(d){ return yScale(d.value) })
-            .attr("r", 5)
+            .join("rect")
+            .attr("x", d => x(new Date(d.date)))
+            .attr("y", d => y(d.value))
+            .attr("height", d => y(0) - y(d.value))
+            .attr("width", x.bandwidth())
+            .style("opacity", 0.1);
+
+        // Append dots
+        g.selectAll("circle")
+            .data(data)
+            .join("circle")
+            .attr("cx", d => x(new Date(d.date)) + x.bandwidth() / 2)
+            .attr("cy", d => y(d.value))
+            .attr("r", x.bandwidth() / 8);
+        
+        // Append line
+        g.selectAll("path")
+            .data([data])
+            .join("path")
+            .attr("d", d => line(d))
+            .attr("fill", "none")
+            .attr("stroke", color);
+        
+        // Append X axis
+        svg.append("g")
+            .call(xAxis)
+            .attr('stroke-width',5);
+
+        // Append Y axis
+        svg.append("g")
+            .call(yAxis)
+            .attr('stroke-width',4);
     }
+
     async function initialize(){
         
         const sensorsData = await fetch('/.netlify/functions/sensor')
