@@ -28,7 +28,7 @@
 
         // X
         const x = d3.scaleBand()
-            .domain(data.map(d => new Date(d.date)))
+            .domain(data.map(d => new Date(d.timestamp)))
             .range([margin.left, width - margin.right])
             .padding(0.1)
 
@@ -42,7 +42,7 @@
 
         // Y
         const y = d3.scaleLinear()
-            .domain([0, d3.max(data, d => d.value)]).nice()
+            .domain([0, d3.max(data, d => parseInt(d.record))]).nice()
             .range([height - margin.bottom, margin.top])
         
         const yAxis = g => g
@@ -67,17 +67,17 @@
         // Set line
         const line = d3
             .line()
-            .defined(d => !isNaN(d.value))
-            .x(d => x(new Date(d.date)) + x.bandwidth() / 2)
-            .y(d => y(d.value))
+            .defined(d => !isNaN(parseInt(d.record)))
+            .x(d => x(new Date(d.timestamp)) + x.bandwidth() / 2)
+            .y(d => y(parseInt(d.record)))
 
         // Append rectangles
         g.selectAll("rect")
             .data(data)
             .join("rect")
-            .attr("x", d => x(new Date(d.date)))
-            .attr("y", d => y(d.value))
-            .attr("height", d => y(0) - y(d.value))
+            .attr("x", d => x(new Date(d.timestamp)))
+            .attr("y", d => y(parseInt(d.record)))
+            .attr("height", d => y(0) - y(parseInt(d.record)))
             .attr("width", x.bandwidth())
             .style("opacity", 0.1);
 
@@ -85,8 +85,8 @@
         g.selectAll("circle")
             .data(data)
             .join("circle")
-            .attr("cx", d => x(new Date(d.date)) + x.bandwidth() / 2)
-            .attr("cy", d => y(d.value))
+            .attr("cx", d => x(new Date(d.timestamp)) + x.bandwidth() / 2)
+            .attr("cy", d => y(parseInt(d.record)))
             .attr("r", x.bandwidth() / 8);
         
         // Append line
@@ -113,18 +113,19 @@
      */
     async function initialize(){
         
-        const sensorsData = await fetch('/.netlify/functions/sensor')
+        const samples = await fetch('/.netlify/functions/sensor?id=1')
         .then((response) => response.json());
-
-        sensorsData.map(sensor => {
+        samples.sensor.map(sensor => {
             const container = document.querySelector('.charts');
             const template = document.querySelector('#chart-template');
             const element = template.content.cloneNode(true);
             const svgDiv = element.querySelector('.graphic')
-            svgDiv.id = sensor.id;
-            element.querySelector('h2').innerText = sensor.title
+            const id = sensor.name;
+            const regex = / /gi;
+            svgDiv.id = id.replace(regex, '_');
+            element.querySelector('h2').innerText = sensor.name
             container.appendChild(element);
-            chartGenerator(sensor.data, sensor.id)
+            chartGenerator(sensor.records, svgDiv.id)
         })
     }
 
