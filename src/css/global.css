@@ -69,3 +69,7 @@ main {
     background-position: 0 0;
   }
 }
+
+.title {
+  text-align: center;
+}
