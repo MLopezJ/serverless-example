@@ -1,131 +1,42 @@
-<h1>Hello world</h1>
+<h1 class="title">Experiments</h1>
 
-<div class="charts"></div>
+<div class="experiments"></div>
 
-<template id="chart-template">
-    <div class="chart">
-        <h2></h2>
-        <div class="graphic"></div>
+
+<template id="experiment-template">
+    <div class="experiment">
+        <div class="lines"></div>
+        <h2 class="row"></h2>
+        <h3 class="row"></h3>
+        <p class="row"></p>
+        <a><button>More</button></a>
     </div>
+    <pre></pre> <!--todo: check if prep is the correct tag type-->
 </template>
 
-<script src="https://d3js.org/d3.v6.min.js"></script>
 <script>
-
-    /**
-     * Generate chart
-     * @param {array} data
-     * @param {string} divId
-     */
-    const chartGenerator = (data, divId) => {
-
-        // define constants
-        const width = 800;
-        const height = 800;
-        const margin = {top: 10, right: 40, bottom: 30, left: 30};
-        const colors = ["steelblue", "orange", "black", "red"]
-        const color = colors[Math.floor(Math.random() * colors.length)];
-
-        // X
-        const x = d3.scaleBand()
-            .domain(data.map(d => new Date(d.timestamp)))
-            .range([margin.left, width - margin.right])
-            .padding(0.1)
-
-        const xAxis = g => g
-            .attr("transform", `translate(0,${height - margin.bottom})`)
-            .call(
-                d3.axisBottom(x)
-                .tickFormat(d3.timeFormat("%d-%b-%y"))
-                .tickSizeOuter(0)
-            )
-
-        // Y
-        const y = d3.scaleLinear()
-            .domain([0, d3.max(data, d => parseInt(d.record))]).nice()
-            .range([height - margin.bottom, margin.top])
-        
-        const yAxis = g => g
-            .attr("transform", `translate(${margin.left},0)`)
-            .call(d3.axisLeft(y).ticks(null, data.format))
-            .call(g => g.append("text")
-                .attr("x", -margin.left)
-                .attr("y", 10)
-                .attr("fill", "currentColor")
-                .attr("text-anchor", "start")
-                .text(data.y))
-
-        // Set SVG
-        const svg = d3.select(`#${divId}`)
-            .append("svg")
-            .attr("viewBox", `0 0 ${height} ${width}`)
-        
-        // Set g
-        const g = svg.append("g")
-            .attr("fill", color);
-
-        // Set line
-        const line = d3
-            .line()
-            .defined(d => !isNaN(parseInt(d.record)))
-            .x(d => x(new Date(d.timestamp)) + x.bandwidth() / 2)
-            .y(d => y(parseInt(d.record)))
-
-        // Append rectangles
-        g.selectAll("rect")
-            .data(data)
-            .join("rect")
-            .attr("x", d => x(new Date(d.timestamp)))
-            .attr("y", d => y(parseInt(d.record)))
-            .attr("height", d => y(0) - y(parseInt(d.record)))
-            .attr("width", x.bandwidth())
-            .style("opacity", 0.1);
-
-        // Append dots
-        g.selectAll("circle")
-            .data(data)
-            .join("circle")
-            .attr("cx", d => x(new Date(d.timestamp)) + x.bandwidth() / 2)
-            .attr("cy", d => y(parseInt(d.record)))
-            .attr("r", x.bandwidth() / 8);
-        
-        // Append line
-        g.selectAll("path")
-            .data([data])
-            .join("path")
-            .attr("d", d => line(d))
-            .attr("fill", "none")
-            .attr("stroke", color);
-        
-        // Append X axis
-        svg.append("g")
-            .call(xAxis)
-            .attr('stroke-width',5);
-
-        // Append Y axis
-        svg.append("g")
-            .call(yAxis)
-            .attr('stroke-width',4);
-    }
 
     /**
      * initialize the construction of elements that will be rendered on the page
      */
     async function initialize(){
         
-        const samples = await fetch('/.netlify/functions/sensor?id=1')
+        const experiments = await fetch('/.netlify/functions/experiments')
         .then((response) => response.json());
-        samples.sensor.map(sensor => {
-            const container = document.querySelector('.charts');
-            const template = document.querySelector('#chart-template');
+        
+        experiments.experiment.map(exp => {
+            console.log(exp);
+            const container = document.querySelector('.experiments');
+            const template = document.querySelector('#experiment-template');
             const element = template.content.cloneNode(true);
-            const svgDiv = element.querySelector('.graphic')
-            const id = sensor.name;
-            const regex = / /gi;
-            svgDiv.id = id.replace(regex, '_');
-            element.querySelector('h2').innerText = sensor.name
+
+            element.querySelector('h2').innerText = exp.name;
+            element.querySelector('h3').innerText = exp.location;
+            element.querySelector('p').innerText = exp.description;
+            element.querySelector('a').href = `samples?experimentId=${exp.id}`;
+             
+
             container.appendChild(element);
-            chartGenerator(sensor.records, svgDiv.id)
         })
     }
 
