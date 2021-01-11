@@ -1,0 +1,129 @@
+.sample {
+  text-align: center;
+}
+.eprouvette {
+  display: block;
+  width: 50px;
+  height: 150px;
+  background-color: #f5f4f0;
+  margin: 50px auto auto auto;
+  border: #e5e4e0 solid 5px;
+  border-top-color: #f5f4f0;
+  border-radius: 0 0 45px 45px;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0) 80%, #e5e4e0 81%),
+    -webkit-radial-gradient(center, ellipse cover, #46be86 0%, #46be86 50%, rgba(
+            255,
+            255,
+            255,
+            0
+          )
+          50%),
+    -webkit-radial-gradient(center, ellipse cover, #0f0d06 0%, #bb980a 0%, rgba(
+            255,
+            255,
+            255,
+            0
+          )
+          0%),
+    linear-gradient(to top, rgba(255, 255, 255, 0) 0%, #46be86 0%), #f5f4f0;
+  background-size: 10px 10px, 200px 200px, 200px 200px, 100% 80%, 100% 100%;
+  background-position: 0 0, -11.1111111111px 138.8888888889px,
+    -100px 27.7777777778px, bottom, 0 0;
+  background-repeat: repeat-y, no-repeat, no-repeat, no-repeat, no-repeat;
+  -webkit-transform-origin: 50% 30%;
+  position: relative;
+}
+.eprouvette .bulles {
+  position: absolute;
+  bottom: 22.5px;
+  left: 0px;
+  z-index: 1;
+  width: 50px;
+  height: 100px;
+  background: -webkit-radial-gradient(
+      center,
+      ellipse cover,
+      #f5f4f0 0%,
+      #f5f4f0 50%,
+      rgba(255, 255, 255, 0) 50%
+    ),
+    -webkit-radial-gradient(center, ellipse cover, #a0861c 0%, #bad80d 50%, rgba(
+            255,
+            255,
+            255,
+            0
+          )
+          50%),
+    -webkit-radial-gradient(center, ellipse cover, #d3c9a1 0%, #50d450 50%, rgba(
+            255,
+            255,
+            255,
+            0
+          )
+          50%);
+  background-size: 0 0;
+  background-position: 80% 100%, center 95%, 110% 70%;
+  background-repeat: no-repeat;
+}
+.sample:hover .eprouvette {
+  animation: vagues 0.5s ease-in-out infinite,
+    agitation 0.5s ease-in-out infinite;
+  /**/
+}
+.sample:hover .bulles {
+  animation: ascension 4s ease-in-out infinite;
+}
+.sample:visited {
+  animation: vagues 0.5s ease-in-out infinite,
+    agitation 0.5s ease-in-out infinite;
+  /**/
+}
+.sample:visited .bulles {
+  animation: ascension 3s ease-in-out infinite;
+}
+
+@keyframes vagues {
+  0% {
+    background-position: 0 0, -100px 138.8888888889px,
+      -11.1111111111px 27.7777777778px, bottom, 0 0;
+  }
+  25% {
+    background-position: 0 0, -50px 166.6666666667px, -50px -8.3333333333px,
+      bottom, 0 0;
+  }
+  50% {
+    background-position: 0 0, -11.1111111111px 138.8888888889px,
+      -100px 27.7777777778px, bottom, 0 0;
+  }
+  75% {
+    background-position: 0 0, -50px 166.6666666667px, -50px -8.3333333333px,
+      bottom, 0 0;
+  }
+  100% {
+    background-position: 0 0, -100px 138.8888888889px,
+      -11.1111111111px 27.7777777778px, bottom, 0 0;
+  }
+}
+@keyframes agitation {
+  0% {
+    -webkit-transform: rotate(6deg);
+  }
+  50% {
+    -webkit-transform: rotate(-6deg);
+  }
+  100% {
+    -webkit-transform: rotate(6deg);
+  }
+}
+@keyframes ascension {
+  0% {
+    bottom: 20%;
+    background-size: 10px 10px, 10px 10px, 10px 10px;
+    background-position: center 100%, center 100%, center 100%;
+  }
+  100% {
+    bottom: 70%;
+    background-size: 10px 10px, 20px 20px, 30px 30px;
+    background-position: 80% 100%, center 50%, 110% 0%;
+  }
+}

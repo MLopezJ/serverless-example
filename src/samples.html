@@ -1,0 +1,53 @@
+<h1 class="title">Samples</h1>
+
+<div class="samples"></div>
+
+<template id="sample-template">
+    <div class="sample">
+        <a href="#" class="eprouvette"><span class="bulles"></span></a>
+        <h2 class="title"></h2>
+        <b></b>
+        <p></p>
+        <a class="button"><button>More</button></a>
+    </div>
+</template>
+
+<script>
+    function getQueryVariable(query, variable)
+    {
+        var vars = query.split("&");
+        for (var i=0;i<vars.length;i++) {
+                var pair = vars[i].split("=");
+                if(pair[0] == variable){return pair[1];}
+        }
+        return(false);
+    }
+
+    var query = window.location.search.substring(1);
+    const experimentId = getQueryVariable(query,'experimentId');
+
+    /**
+     * initialize the construction of elements that will be rendered on the page
+     */
+     async function initialize(){
+        const samples = await fetch(`/.netlify/functions/samples?id=${experimentId}`)
+        .then((response) => response.json());
+        console.log(samples)
+        
+        samples.sample.map(samp => {
+            console.log(samp);
+            const container = document.querySelector('.samples');
+            const template = document.querySelector('#sample-template');
+            const element = template.content.cloneNode(true);
+
+            element.querySelector('h2').innerText = samp.name;
+            element.querySelector('p').innerText = samp.description;
+            const url = `${location.protocol}//${location.host}/sensors?sampleId=${samp.id}`
+            element.querySelector('.button').href = url;
+
+            container.appendChild(element);
+        })
+    }
+
+    initialize()
+</script>
