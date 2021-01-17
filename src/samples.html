@@ -32,20 +32,26 @@
      async function initialize(){
         const samples = await fetch(`/.netlify/functions/samples?id=${experimentId}`)
         .then((response) => response.json());
-        
-        samples.sample.map(samp => {
-            console.log(samp);
-            const container = document.querySelector('.samples');
+        const container = document.querySelector('.samples');
+        if (samples.sample.length > 0){
+            samples.sample.map(samp => {
             const template = document.querySelector('#sample-template');
             const element = template.content.cloneNode(true);
+            const url = `${location.protocol}//${location.host}/sensors?sampleId=${samp.id}`
 
             element.querySelector('h2').innerText = samp.name;
             element.querySelector('p').innerText = samp.description;
-            const url = `${location.protocol}//${location.host}/sensors?sampleId=${samp.id}`
             element.querySelector('.button').href = url;
 
             container.appendChild(element);
         })
+        } else{
+            const p = document.createElement("p");
+            const text = document.createTextNode("No data yet");
+            p.style.textAlign = "center";
+            p.appendChild(text);
+            container.appendChild(p);
+        }
     }
 
     initialize()

@@ -126,27 +126,35 @@
         
         const samples = await fetch(`/.netlify/functions/sensor?id=${sampleId}`)
         .then((response) => response.json());
-        samples.sensor.map(sensor => {
-            const container = document.querySelector('.charts');
-            const template = document.querySelector('#chart-template');
-            const element = template.content.cloneNode(true);
-            const svgDiv = element.querySelector('.graphic')
-            const id = sensor.name;
-            const regex = / /gi;
-            svgDiv.id = id.replace(regex, '_');
-            element.querySelector('h2').innerText = sensor.name
-            container.appendChild(element);
-            if (sensor.records.length > 0){
-                chartGenerator(sensor.records, svgDiv.id)
-            } else {
-                const p = document.createElement("p");
-                const text = document.createTextNode("No data yet");
-                p.style.textAlign = "center";
-                p.appendChild(text);
-                svgDiv.appendChild(p);
-            }
-            
-        })
+        const container = document.querySelector('.charts');
+        if (samples.sensor.length > 0){
+            samples.sensor.map(sensor => {
+                const template = document.querySelector('#chart-template');
+                const element = template.content.cloneNode(true);
+                const svgDiv = element.querySelector('.graphic')
+                const id = sensor.name;
+                const regex = / /gi;
+                svgDiv.id = id.replace(regex, '_');
+                element.querySelector('h2').innerText = sensor.name
+                container.appendChild(element);
+                if (sensor.records.length > 0){
+                    chartGenerator(sensor.records, svgDiv.id)
+                } else {
+                    const p = document.createElement("p");
+                    const text = document.createTextNode("No data yet");
+                    p.style.textAlign = "center";
+                    p.appendChild(text);
+                    svgDiv.appendChild(p);
+                }
+            })
+        } else {
+            const p = document.createElement("p");
+            const text = document.createTextNode("No data yet");
+            p.style.textAlign = "center";
+            p.appendChild(text);
+            container.appendChild(p);
+        }
+        
     }
 
     initialize()

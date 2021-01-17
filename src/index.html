@@ -24,20 +24,26 @@
         const experiments = await fetch('/.netlify/functions/experiments')
         .then((response) => response.json());
         
-        experiments.experiment.map(exp => {
-            console.log(exp);
-            const container = document.querySelector('.experiments');
-            const template = document.querySelector('#experiment-template');
-            const element = template.content.cloneNode(true);
+        const container = document.querySelector('.experiments');
+        if (experiments.experiment.length > 0){
+            experiments.experiment.map(exp => {
+                const template = document.querySelector('#experiment-template');
+                const element = template.content.cloneNode(true);
 
-            element.querySelector('h2').innerText = exp.name;
-            element.querySelector('h3').innerText = exp.location;
-            element.querySelector('p').innerText = exp.description;
-            element.querySelector('a').href = `samples?experimentId=${exp.id}`;
-             
-
-            container.appendChild(element);
-        })
+                element.querySelector('h2').innerText = exp.name;
+                element.querySelector('h3').innerText = exp.location;
+                element.querySelector('p').innerText = exp.description;
+                element.querySelector('a').href = `samples?experimentId=${exp.id}`;
+                
+                container.appendChild(element);
+            })
+        } else{
+            const p = document.createElement("p");
+            const text = document.createTextNode("No data yet");
+            p.style.textAlign = "center";
+            p.appendChild(text);
+            container.appendChild(p);
+        }
     }
 
     initialize()
