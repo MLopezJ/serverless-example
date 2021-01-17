@@ -1,8 +1,8 @@
 :root {
-  --pink: #d459ab;
+  --red: #a31420;
   --pink-text: #dd78bc; /* lightened up to meet a11y guidelines */
-  --yellow: #ffdf37;
-  --blue: #a6fffa;
+  --light-blue: #a8dadc;
+  --blue: #1d3557;
   --light-gray: #e0e0e0;
   --dark-gray: #1a2a3b;
   --gray: #3f4f61;
@@ -11,11 +11,11 @@
   --white: white;
   --lwj-gradient: linear-gradient(
     90deg,
-    var(--pink) 0%,
-    var(--yellow) 25%,
+    var(--red) 0%,
+    var(--light-blue) 25%,
     var(--blue) 50%,
-    var(--yellow) 75%,
-    var(--pink) 100%
+    var(--light-blue) 75%,
+    var(--red) 100%
   );
   --text: var(--gray);
   --text-muted: #687889;
