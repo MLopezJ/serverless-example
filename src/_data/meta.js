@@ -1,4 +1,4 @@
 module.exports = {
-  title: "Serverless Example",
+  title: "Sensors Dashboard",
   repo: "MLopezJ/serverless-example",
 };
