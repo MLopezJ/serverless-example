@@ -32,7 +32,6 @@
      async function initialize(){
         const samples = await fetch(`/.netlify/functions/samples?id=${experimentId}`)
         .then((response) => response.json());
-        console.log(samples)
         
         samples.sample.map(samp => {
             console.log(samp);
